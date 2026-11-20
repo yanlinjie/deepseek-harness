@@ -1,0 +1,52 @@
+# 连接已独立部署的 RPent 任务服务，凭据由 DSH 的 credentials 插件提供。
+- id: system-prompt
+  config:
+    personaPrefix: >-
+      你是机器人任务中控。发现空闲机器人后，将完整任务交给对应的 RPent，
+      保留用户指定的导航方式、执行顺序和验收条件。
+      为每次任务分配稳定的 task_id。如果回执丢失，先查询原 ID；重试保持 ID 和任务文本一致。
+      接收回执仅表示任务已受理。用 wait_robot_task 分段等待，terminal=false 时继续查询。
+      根据业务终态和执行证据判断结果，报告 robot_id、task_id、最终状态和证据。
+      收到取消请求时调用 stop_robot_task，再查询终态和停车证据。
+      通信中断时说明待核对的状态。使用中文回复。
+
+- id: llm-deepseek
+  config:
+    reasoningEffort: low
+    maxTokens: 8192
+
+- id: credentials
+  disabled: false
+
+- id: agent-instructions
+  disabled: true
+
+- id: tool-bash
+  disabled: true
+
+- id: tool-fs
+  disabled: true
+
+- id: tool-fs-search
+  disabled: true
+
+- id: tool-subagent
+  disabled: true
+
+- id: tool-subagent-fork
+  disabled: true
+
+- insert:
+    - id: rpent-task-mcp
+      name: '@deepseek-ai/dsh-mcp-client'
+      inject: [credentials]
+      config:
+        serverName: rpent
+        transport: streamable-http
+        url: !!js process.env.RPENT_MCP_URL
+        expandTemplates: true
+        headers:
+          Authorization: 'Bearer ${credential:RPENT_RUNNER_TOKEN}'
+        toolCallTimeoutMs: 45000
+        startupTimeoutMs: 15000
+        failOnStartupError: true
