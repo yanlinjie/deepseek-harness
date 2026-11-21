@@ -1,0 +1,8 @@
+- insert:
+    - id: rpent-remote-mcp
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: rpent-remote
+        transport: streamable-http
+        url: !!js process.env.DSH_RPENT_REMOTE_URL
+        toolCallTimeoutMs: !!js 'Number(process.env.DSH_MCP_TOOL_TIMEOUT_MS ?? 960000)'

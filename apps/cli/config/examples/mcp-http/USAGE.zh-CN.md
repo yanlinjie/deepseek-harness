@@ -14,3 +14,9 @@ pnpm dsh --profile headless \
 需要 Bearer 鉴权时，通过私有启动环境提供 `DSH_MCP_TOKEN`，并将 `--patch` 指向 `apps/cli/config/examples/mcp-http/bearer.cordis.yml`。DSH 的凭据插件会在连接时解析令牌。
 
 可在同一个 Cordis 文件中为多个服务填写独立的客户端配置项，每个条目使用不同的 `id` 和 `serverName`。接入参数见[官方 MCP 客户端说明](../../../../../packages/mcp/mcp-client/README.zh.md)。
+
+## 接入 RPent
+
+同机运行 Go2 仿真时，加载 [local.cordis.yml](../rpent/local.cordis.yml)，调用 `mcp__go2-01__get_robot_info` 获取就绪状态。该配置连接 `http://127.0.0.1:8780/mcp`。
+
+跨机器且由私网或网关管理访问权限时，先设置 `DSH_RPENT_REMOTE_URL` 为 RPent 的完整 `/mcp` 地址，再加载 [remote.cordis.yml](../rpent/remote.cordis.yml)，调用 `mcp__rpent-remote__get_robot_info` 检查远端。两份配置可通过多个 `--patch` 一起加载。

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { composeEntries, loadProfile } from '@deepseek-ai/dsh-app-boot'
+import { composeEntries, loadOverlayPatches, loadProfile } from '@deepseek-ai/dsh-app-boot'
 import { PROFILE_TEMPLATES } from '@deepseek-ai/dsh-official-bundles'
 
 const installAnchor = fileURLToPath(new URL('../package.json', import.meta.url))
@@ -54,4 +54,18 @@ describe('shipped MCP resource composition', () => {
       rmSync(home, { recursive: true, force: true })
     }
   })
+})
+
+it('loads the local and remote RPent examples under separate tool namespaces', () => {
+  const directory = new URL('../config/examples/rpent/', import.meta.url)
+  const rows = composeEntries(['local.cordis.yml', 'remote.cordis.yml'].map(file =>
+    loadOverlayPatches('dsh', fileURLToPath(new URL(file, directory))),
+  ))
+
+  expect(rows.map(({ id, name }) => ({ id, name }))).toEqual([
+    { id: 'rpent-local-mcp', name: '@deepseek-ai/dsh-mcp-client' },
+    { id: 'rpent-remote-mcp', name: '@deepseek-ai/dsh-mcp-client' },
+  ])
+  expect(rows[0]?.config).toMatchObject({ serverName: 'go2-01', url: 'http://127.0.0.1:8780/mcp' })
+  expect(rows[1]?.config).toMatchObject({ serverName: 'rpent-remote', transport: 'streamable-http' })
 })
