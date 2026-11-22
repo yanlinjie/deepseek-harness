@@ -1,8 +1,0 @@
-- insert:
-    - id: external-mcp-http
-      name: '@deepseek-ai/dsh-mcp-client'
-      config:
-        serverName: !!js 'process.env.DSH_MCP_NAME || "external"'
-        transport: streamable-http
-        url: !!js process.env.DSH_MCP_URL
-        toolCallTimeoutMs: !!js 'Number(process.env.DSH_MCP_TOOL_TIMEOUT_MS ?? 60000)'
